@@ -1,9 +1,12 @@
 from tkinter import *
+import time
 
+squareSize = 1
+squares = []
 class Square:
 
     def __init__(self,canvas,startX,startY,size, start):
-        self.size = 4 * size
+        self.size = squareSize * size
         self.startX = startX
         self.startY = startY
         self.canvas = canvas
@@ -13,44 +16,98 @@ class Square:
     def moveArc(self, distanceX, distanceY):
          self.canvas.move(self.arc, distanceX,distanceY)
 
+def draw():
+    global theStartY
+    global theStartX
+    global tk
+    
+    
+    for index, fibNum in enumerate(nums):
+         size = squareSize * fibNum
+         size = fibNum*squareSize
+ #        time.sleep(0.5)
+         tk.update();
+         
+         if index % 4 == 0:
+             theStartY = theStartY - size
+             square = Square(canvas, theStartX, theStartY, fibNum, 90)
+             squares.append(square)
+         elif index % 4 == 1:
+             startX = theStartX + nums[index-1] * squareSize
+             square = Square(canvas, startX, theStartY, fibNum, 0)
+             square.moveArc(-size,0)
+             squares.append(square)
+         elif index %4 == 2:
+             startY = theStartY + nums[index-1] * squareSize
+             square = Square(canvas,theStartX, startY,fibNum , 270)
+             square.moveArc(-size,-size)
+             squares.append(square)
+         else:
+             theStartX = theStartX - size
+             square = Square(canvas, theStartX,theStartY, fibNum, 180)
+             square.moveArc(0, -size)
+             squares.append(square)
+            
+
+def createFibSequenceUpToNum(n):
+     result = []
+     a, b = 0, 1
+     while b < n:
+         result.append(b)    # see below
+         a, b = b, a+b
+     return result
+
+def mouseScroll(event):
+     print("mouse Scroll")
+
+def keyPress(event):
+    global squareSize
+    global canvas
+    print("Key Press", event.char)
+    if event.char == '+':
+        print("+")
+        squareSize = squareSize + 5
+        canvas.delete("all")
+        draw()
+        
+    if event.char == '-':
+        print("-")
+        squareSize = squareSize - 5
+        canvas.delete("all")
+        draw()
+
         
 
 
+print("Gimme a big 'ol Number")
+num = 100
+
 tk = Tk()
-canvas = Canvas(tk, width = 1200,height = 800)
-canvas.pack()
 
-firstX = 300
-firstY = 200
-size = 4
+frame=Frame(tk,width=1200,height=600)
+frame.grid(row=0,column=0)
 
-square = Square(canvas, firstX, firstY, 1, 90)
+canvas = Canvas(frame, width = 1200,height = 600, scrollregion=(-10000,-10000,10000,10000))
 
-square2 = Square(canvas, firstX+size,firstY, 1, 0)
-square2.moveArc(-square2.size,0)
+hbar=Scrollbar(frame,orient=HORIZONTAL)
+hbar.pack(side=BOTTOM,fill=X)
+hbar.config(command=canvas.xview)
 
-square3 = Square(canvas, firstX,firstY+size,2,270)
-square3.moveArc(-square3.size,-square3.size)
+vbar=Scrollbar(frame,orient=VERTICAL)
+vbar.pack(side=RIGHT,fill=Y)
+vbar.config(command=canvas.yview)
 
-square4 = Square(canvas, firstX - (3*size),firstY, 3, 180)
-square4.moveArc(0,-square4.size)
+canvas.config(width=1200, height=600)
+canvas.config(xscrollcommand=hbar.set, yscrollcommand=vbar.set)
+canvas.pack(side=LEFT,expand=True,fill=BOTH)
 
-square5 = Square(canvas, firstX - (3*size), firstY - (5*size), 5, 90)
+canvas.bind_all("<MouseWheel>", mouseScroll)
+canvas.bind_all("<KeyPress>",keyPress)
 
-square6 = Square(canvas, (firstX + 2*size),  firstY - (5*size), 8, 0)
-square6.moveArc(-square6.size,0)
-
-square7 = Square(canvas, firstX - (3*size), firstY + (3*size), 13,270)
-square7.moveArc(-square7.size, -square7.size)
-
-square8 = Square(canvas, firstX - (24*size), firstY - (5*size), 21, 180)
-square8.moveArc(0, -square8.size)
+theStartX = 500
+theStartY = 350
 
 
-square9 = Square(canvas, firstX - (24*size), firstY - (39*size), 34, 90)
+nums = createFibSequenceUpToNum(num)            
 
-square10 = Square(canvas, firstX + (10*size), firstY - (39*size), 55, 0)
-square10.moveArc(-square10.size, 0)
-
-square11 = Square(canvas, firstX - (24*size), firstY + (16*size), 89, 270)
-square11.moveArc(-square11.size, -square11.size)
+draw()
